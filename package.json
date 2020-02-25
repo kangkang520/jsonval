@@ -1,0 +1,26 @@
+{
+	"name": "jsonval",
+	"version": "2.0.1",
+	"description": "",
+	"main": "dist/index.js",
+	"types": "typings/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kangkang520/jsonval.git"
+	},
+	"keywords": [
+		"jsonval",
+		"json",
+		"value",
+		"validate",
+		"validator"
+	],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"typescript": "^3.8.2"
+	}
+}
