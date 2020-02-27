@@ -8,7 +8,7 @@ declare namespace jsonvType {
 		 * * 如果是[number, null]，表示最小值限制
 		 * * 如果是[number, number]，表示范围限制
 		 */
-		range?: [number | null, number | null]
+		range?: [number, number] | [number, null] | [null, number]
 		/** 定义数字允许的值 */
 		values?: Array<ValsT>
 	}
