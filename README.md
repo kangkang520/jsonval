@@ -4,7 +4,7 @@
 
 ## 使用校验
 
-通过jsonv函数提供的方法即可对值进行校验
+通过`jsonv`提供的方法即可对值进行校验
 
 ```typescript
 import { jsonv } from 'jsonval'
