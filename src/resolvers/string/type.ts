@@ -30,6 +30,20 @@ declare namespace jsonvType {
 		 * @param name 参数名称
 		 * @param opt 选项
 		 */
-		string<R extends RequireType, ValsT extends string = string>(req: R, name: string, opt?: IStringOption<ValsT>): WSParam<RequireRet<R, ValsT>>
+		string<R extends RequireType, ValsT extends string = string>(req: R, name: Name, opt?: IStringOption<ValsT>): WSParam<RequireRet<R, ValsT>>
+	}
+
+	export interface IJSONVERR {
+		string: {
+			isEmpty: (option: IErrorOption) => any
+			notString: (option: IErrorOption) => any
+			lenNot: (option: IErrorOption) => any
+			lenNotInRange: (option: IErrorOption) => any
+			lenGT: (option: IErrorOption) => any
+			lenLT: (option: IErrorOption) => any
+			notInValues: (option: IErrorOption) => any
+			notMatch: (option: IErrorOption) => any
+			costomError: (option: IErrorOption) => any
+		}
 	}
 }

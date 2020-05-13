@@ -75,3 +75,14 @@ const validator = jsonv.object('!', '用户信息', {
 	love: jsonv.array('?', '爱好列表', jsonv.string('!', '爱好', { length: [1,5] }))
 })
 ```
+
+
+## 自定义错误处理
+
+通过`jsonv.tools.erraction`用来注册或重写错误处理程序。
+
+通过`jsonv.tools.erractionof`来获取已注册的错误处理程序。
+
+先在`jsonvType.IJSONVERR`中定义相关的错误处理程序，之后便可以使用`jsonv.tools.erraction`来注册。
+
+如果已经注册了错误处理程序，则不应该直接抛出异常，而是调用错误处理程序来处理。

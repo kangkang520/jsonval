@@ -20,7 +20,7 @@ declare namespace jsonvType {
 		 * @param name 参数名称
 		 * @param opt 参数选项
 		 */
-		int<R extends RequireType, ValsT extends number = number>(req: R, name: string, opt?: INumberOption<ValsT>): WSParam<RequireRet<R, ValsT>>
+		int<R extends RequireType, ValsT extends number = number>(req: R, name: Name, opt?: INumberOption<ValsT>): WSParam<RequireRet<R, ValsT>>
 
 		/**
 		 * 定义一个浮点数参数
@@ -28,16 +28,18 @@ declare namespace jsonvType {
 		 * @param name 参数名称
 		 * @param opt 参数选项
 		 */
-		float<R extends RequireType, ValsT extends number = number>(req: R, name: string, opt?: INumberOption<ValsT>): WSParam<RequireRet<R, ValsT>>
+		float<R extends RequireType, ValsT extends number = number>(req: R, name: Name, opt?: INumberOption<ValsT>): WSParam<RequireRet<R, ValsT>>
+	}
 
-
-
-		/**
-		 * 定义一个对象参数
-		 * @param req 非空控制
-		 * @param name 参数名称
-		 * @param values 参数值
-		 */
-		object<T, R extends RequireType>(req: R, name: string, values: T): WSParam<RequireRet<R, { [P in keyof T]: ParamType<T[P]> }>>
+	export interface IJSONVERR {
+		number: {
+			isEmpty: (option: IErrorOption) => any
+			notNumber: (option: IErrorOption) => any
+			notInt: (option: IErrorOption) => any
+			notInRang: (option: IErrorOption) => any
+			cantGT: (option: IErrorOption) => any
+			cantLT: (option: IErrorOption) => any
+			notInValues: (option: IErrorOption) => any
+		}
 	}
 }
