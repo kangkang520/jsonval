@@ -31,7 +31,12 @@ tools.regist('string', (req, name, opt) => {
 				const [exp, msg] = opt.regexp
 				const regs = (exp instanceof Array) ? exp : [exp]
 				if (regs.length && !regs.some(r => r.test(val!))) {
-					msg ? tools.erractionof('string', 'costomError')({ err: msg, req, name, opt, val, voption }) : tools.erractionof('string', 'notMatch')({ req, name, opt, val, voption })
+					if (msg) {
+						tools.erractionof('string', 'costomError')({ err: msg, req, name, opt, val, voption })
+					}
+					else {
+						tools.erractionof('string', 'notMatch')({ req, name, opt, val, voption })
+					}
 				}
 			}
 		}
@@ -47,7 +52,7 @@ tools.erraction('string', 'isEmpty', (option) => {
 })
 
 tools.erraction('string', 'notString', (option) => {
-	tools.error(tools.nameof(option.name, option.voption), '参数应该是字符串')
+	tools.error(tools.nameof(option.name, option.voption), '应该是字符串')
 })
 
 tools.erraction('string', 'lenNot', (option) => {

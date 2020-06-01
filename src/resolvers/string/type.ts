@@ -20,7 +20,7 @@ declare namespace jsonvType {
 		 * 
 		 * 如果给定多个，则只要某一个满足即可
 		 */
-		regexp?: [RegExp | Array<RegExp>, string?]
+		regexp?: [RegExp | Array<RegExp>, Name?]
 	}
 
 	export interface IJSONV {
