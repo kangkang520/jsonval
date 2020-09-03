@@ -1,17 +1,18 @@
 import * as tools from '../../base/tools'
 
-tools.regist('object', (req: jsonvType.RequireType, name: string, vals: any) => {
-	return (val: any, voption: any) => {
+tools.regist('object', (req, name, vals) => {
+	return (val, voption) => {
+		const result: any = {}
 		if (tools.empty(val)) {
 			if (req == '!') tools.erractionof('object', 'isEmpty')({ req, name, vals, val, voption })
 		} else {
 			if (typeof val != 'object') tools.erractionof('object', 'notObject')({ req, name, vals, val, voption })
 			//校验对象中的每个值
 			Object.keys(vals).forEach(key => {
-				(val as any)[key] = (vals as any)[key]((val as any)[key], voption)
+				result[key] = (vals as any)[key]((val as any)[key], voption)
 			})
 		}
-		return val
+		return result
 	}
 })
 
