@@ -1,7 +1,7 @@
-import { createUtil } from "./util"
+import * as $util from "./util"
 
 export const jsonv2: jsonv2.IValidatorDict = {
-	$util: null!,
+	$util,
 	//字符串
 	string(option) {
 		return (val, opt, treePath = []) => {
@@ -224,5 +224,3 @@ export const jsonv2: jsonv2.IValidatorDict = {
 		}
 	},
 }
-
-jsonv2.$util = createUtil(jsonv2)

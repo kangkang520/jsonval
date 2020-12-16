@@ -1,5 +1,5 @@
 import { ValidateError } from "./error"
-import { createUtil } from "./util"
+import * as $util from "./util"
 
 declare global {
 	/** 校验器命名空间，用于定义 */
@@ -123,9 +123,10 @@ declare global {
 		}
 
 		/** 校验器 */
+		export interface IValidatorDict { }
 		export interface IValidatorDict {
 			/** 工具 */
-			$util: ReturnType<typeof createUtil>
+			$util: typeof $util
 			/**
 			 * 字符串校验
 			 * @param option 校验选项
