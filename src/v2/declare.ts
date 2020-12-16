@@ -17,9 +17,6 @@ declare global {
 		/** 校验器返回定义 */
 		export type VReturn<T> = (val: any, option: any, path?: Array<string>) => { type: 'success' | 'error', errors: Array<ValidateError>, result: T }
 
-
-		// type TDefault<T> = Exclude<T, undefined> | ((s: null | undefined) => Exclude<T, undefined>)
-
 		/** 基本校验选项 */
 		export interface IBaseValidateOption<D, R, Rule> {
 			/** 校验规则 */
@@ -99,7 +96,7 @@ declare global {
 		}
 
 		/** 元组处理 */
-		export type TupleR<T> = T extends [VReturn<infer T1>] ? [T1] :
+		export type TupleResult<T> = T extends [VReturn<infer T1>] ? [T1] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>] ? [T1, T2] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>, VReturn<infer T3>] ? [T1, T2, T3] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>, VReturn<infer T3>, VReturn<infer T4>] ? [T1, T2, T3, T4] :
@@ -117,7 +114,7 @@ declare global {
 			Array<any>
 
 		/** 元组校验选项 */
-		export interface ITupleOption<R, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface ITupleOption<R, T extends VReturn<any>[], D extends TupleResult<[...T]> | undefined> extends IBaseValidateOption<D, R, {}> {
 			/** 元素定义 */
 			items: [...T]
 		}
@@ -139,12 +136,12 @@ declare global {
 			 * 字符串校验
 			 * @param option 校验选项
 			 */
-			string<R extends TReq, S extends string, D extends S | undefined=undefined>(option: IStringOption<R, S, D>): VReturn<TResult<R, D, S>>
+			string<R extends TReq, S extends string, D extends S | undefined = undefined>(option: IStringOption<R, S, D>): VReturn<TResult<R, D, S>>
 			/**
 			 * 数字校验
 			 * @param option 校验选项
 			 */
-			number<R extends TReq, N extends number, D extends N | undefined=undefined>(option: INumberOption<R, N, D>): VReturn<TResult<R, D, N>>
+			number<R extends TReq, N extends number, D extends N | undefined = undefined>(option: INumberOption<R, N, D>): VReturn<TResult<R, D, N>>
 			/**
 			 * 布尔校验
 			 * @param option 校验选项
@@ -164,7 +161,7 @@ declare global {
 			 * 元组校验
 			 * @param option 元组选项
 			 */
-			tuple<R extends TReq, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined = undefined>(option: ITupleOption<R, T, D>): VReturn<TResult<R, D, TupleR<[...T]>>>
+			tuple<R extends TReq, T extends VReturn<any>[], D extends TupleResult<[...T]> | undefined = undefined>(option: ITupleOption<R, T, D>): VReturn<TResult<R, D, TupleResult<[...T]>>>
 			/**
 			 * 或校验
 			 * 
