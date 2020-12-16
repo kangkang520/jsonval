@@ -75,10 +75,10 @@ declare global {
 		export interface IBooleanOption<R extends TReq, D extends boolean | undefined> extends IBaseValidateOption<D, R, {}> { }
 
 		/** 对象结果 */
-		export type TObjectResult<T> = { [P in keyof T]: T[P] extends VReturn<infer R> ? R : never }
+		export type TObjectResult<T> = T extends VReturn<infer R> ? R : never
 
 		/** 对象校验选项 */
-		export interface IObjectOption<R extends boolean, T, D extends TObjectResult<T> | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface IObjectOption<R extends boolean, T, D> extends IBaseValidateOption<D, R, {}> {
 			/** 属性列表 */
 			props: T
 		}
@@ -153,7 +153,7 @@ declare global {
 			 * 对象校验
 			 * @param option 校验选项
 			 */
-			object<R extends TReq, T, D extends TObjectResult<T> | undefined = undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, TObjectResult<T>>>
+			object<R extends TReq, T, D extends { [P in keyof T]: TObjectResult<T[P]> } | undefined = undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, { [P in keyof T]: TObjectResult<T[P]> }>>
 			/**
 			 * 数组校验
 			 * @param option 校验选项

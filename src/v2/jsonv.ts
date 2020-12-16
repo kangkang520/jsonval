@@ -333,6 +333,6 @@ export const jsonv2: jsonv2.IValidatorDict = {
 // 			default: 'dev'
 // 		}),
 // 	},
-// 	// default: { items: 'dev' }
+// 	default: { items: 'dev' }
 // })(undefined, {})
 // validators2.result.items
