@@ -34,6 +34,8 @@ declare global {
 			default?: Exclude<D, undefined> | ((s: null | undefined) => Exclude<D, undefined>)
 		}
 
+		export type TStringType = "date" | "time" | "datetime" | "email" | "mobile" | "tel" | "url" | "ip" | "domain" | "hostname"
+
 		/** 字符串校验选项 */
 		export interface IStringOption<R extends TReq, S extends string, D extends S | undefined> extends IBaseValidateOption<D, R, {
 			/** 允许的取值 */
@@ -45,7 +47,7 @@ declare global {
 			/** 正则表达式 */
 			pattern: RegExp | Array<RegExp>
 			/** 类型定义 */
-			type: 'date' | 'time' | 'datetime' | 'email' | 'mobile' | 'tel' | 'url'
+			type: TStringType
 
 		}> {
 			/** 空值定义，当字符串中存在下列给定值时，会作为空处理，并转换成undefined，默认只有undefined */

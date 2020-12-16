@@ -1,5 +1,51 @@
 import * as $util from "./util"
 
+const REGEXPS: { [P in jsonv2.TStringType]: [RegExp | Array<RegExp>, string] } = {
+	'date': [
+		/^\d{4}-\d{2}-\d{2}$/,
+		'value not a date',
+	],
+	'time': [
+		/^\d{2}:\d{2}:\d{2}$/,
+		'value not a time',
+	],
+	'datetime': [
+		/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+		'value not a datetime',
+	],
+	'email': [
+		/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*\.[a-z]{2,}$/,
+		'value not a email',
+	],
+	'mobile': [
+		/^1[34578][0-9]{9}$/,
+		'value not a mobile',
+	],
+	'tel': [
+		/^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{7,14}$/,
+		'value not a tel',
+	],
+	'url': [
+		/^(http[s]?):\/\/[\S]{3,}$/,
+		'value not a url',
+	],
+	'ip': [
+		/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/,
+		'value not a ip',
+	],
+	'domain': [
+		/^(([a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61})(\.[a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61})*(\.[a-zA-Z0-9]{2,}){1})|([a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61}[a-zA-Z0-9_])$/,
+		'value not a domain',
+	],
+	'hostname': [
+		[
+			/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/,
+			/^(([a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61})(\.[a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61})*(\.[a-zA-Z0-9]{2,}){1})|([a-zA-Z0-9_][a-zA-Z0-9_\-]{0,61}[a-zA-Z0-9_])$/,
+		],
+		'value not a hostname'
+	],
+}
+
 export const jsonv2: jsonv2.IValidatorDict = {
 	$util,
 	//字符串
@@ -27,14 +73,14 @@ export const jsonv2: jsonv2.IValidatorDict = {
 						if (!patterns.some(p => p.test(val))) return this.$util.mkerr(rule.message, treePath, `got a error value`)
 					}
 					//类型校验
-					if (rule.type) {
-						if (rule.type === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a date`)
-						else if (rule.type === 'time' && !/^\d{2}:\d{2}:\d{2}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a time`)
-						else if (rule.type === 'datetime' && !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a datetime`)
-						else if (rule.type === 'email' && !/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*\.[a-z]{2,}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a email`)
-						else if (rule.type === 'mobile' && !/^1[34578][0-9]{9}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a mobilephone number`)
-						else if (rule.type === 'tel' && !/^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{7,14}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a tellphone number`)
-						else if (rule.type === 'url' && !/^(http[s]?):\/\/[\S]{3,}$/.test(val)) return this.$util.mkerr(rule.message, treePath, `value not a url`)
+					if (rule.type && REGEXPS[rule.type]) {
+						const [reg, msg] = REGEXPS[rule.type]
+						if (
+							//没有一个通过
+							((reg instanceof Array) && !reg.some(reg => reg.test(val)))
+							//不通过
+							|| (reg instanceof RegExp && !reg.test(val))
+						) return this.$util.mkerr(rule.message, treePath, msg)
 					}
 				}
 				//其他正常
@@ -246,14 +292,14 @@ export const jsonv2: jsonv2.IValidatorDict = {
 }
 
 
-const xx = jsonv2.or({
-	typeerr: '服务器进程数无效,应该是: "cpus" | [1,128]',
-	items: [
-		jsonv2.string({ rules: [{ values: ['cpus'] }] }),
-		jsonv2.number({ type: 'int', rules: [{ min: 1, max: 128 }] })
-	],
-	default: 'cpus',
-})(undefined, {})
+// const xx = jsonv2.or({
+// 	typeerr: '服务器进程数无效,应该是: "cpus" | [1,128]',
+// 	items: [
+// 		jsonv2.string({ rules: [{ values: ['cpus'] }] }),
+// 		jsonv2.number({ type: 'int', rules: [{ min: 1, max: 128 }] })
+// 	],
+// 	default: 'cpus',
+// })(undefined, {})
 
 // jsonv2.string({
 // 	rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
