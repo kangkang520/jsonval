@@ -126,7 +126,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			const result: any = {}
 			Object.keys(option.props).forEach(key => {
 				const v = val[key]
-				const res = option.props[key as keyof typeof option.props](v, opt, [...treePath, key as string])
+				const res = (option.props as any)[key](v, opt, [...treePath, key as string])
 				if (res.type == 'error') errors.push(...res.errors)
 				result[key] = res.result
 			})
@@ -244,3 +244,40 @@ export const jsonv2: jsonv2.IValidatorDict = {
 		}
 	},
 }
+
+
+// jsonv2.string({
+// 	rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
+// 	default: 'dev'
+// })
+
+// type xxx = Exclude<undefined | 'str', undefined>
+
+// type TResult<R, D, T> = true extends R ? T : (Exclude<D, undefined> extends never ? (T | undefined) : T)
+
+// type t1 = true extends false ? 't' : 'f'
+
+// type xx = TResult<false, ("22")[] | ((s: null | undefined) => ("22")[]) | undefined, 333>
+
+// type xxx = Exclude<true, true>
+
+// const validators1 = jsonv2.tuple({
+// 	// rules: [{ required: true, message: '配置不存在或配置为空' }],
+// 	items: [jsonv2.string({
+// 		rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
+// 		default: 'dev'
+// 	})],
+// 	// default: ['dev']
+// })(undefined, {})
+// validators1.result[0]
+
+// const validators2 = jsonv2.object({
+// 	props: {
+// 		items: jsonv2.string({
+// 			rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
+// 			default: 'dev'
+// 		}),
+// 	},
+// 	// default: { items: 'dev' }
+// })(undefined, {})
+// validators2.result.items

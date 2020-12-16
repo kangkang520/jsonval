@@ -11,10 +11,14 @@ declare global {
 		export type TErrorMessage = string | (() => string) | [string, number] | (() => [string, number])
 
 		/** 结果定义 */
-		export type TResult<R, D, T> = R extends true ? T : (undefined extends D ? (T | undefined) : (never extends D ? (T | undefined) : T))
+		// export type TResult<R, D, T> = R extends true ? T : (undefined extends D ? (T | undefined) : (D extends never ? (T | undefined) : T))
+		export type TResult<R, D, T> = Exclude<R, true> extends never ? T : (Exclude<D, undefined> extends never ? (T | undefined) : T)
 
 		/** 校验器返回定义 */
 		export type VReturn<T> = (val: any, option: any, path?: Array<string>) => { type: 'success' | 'error', errors: Array<ValidateError>, result: T }
+
+
+		// type TDefault<T> = Exclude<T, undefined> | ((s: null | undefined) => Exclude<T, undefined>)
 
 		/** 基本校验选项 */
 		export interface IBaseValidateOption<D, R, Rule> {
@@ -71,23 +75,27 @@ declare global {
 		/** 布尔校验选项 */
 		export interface IBooleanOption<R extends TReq, D extends boolean | undefined> extends IBaseValidateOption<D, R, {}> { }
 
+		/** 对象结果 */
+		export type TObjectResult<T> = { [P in keyof T]: T[P] extends VReturn<infer R> ? R : never }
+
 		/** 对象校验选项 */
-		export interface IObjectOption<R extends boolean, T extends {}, D extends T | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface IObjectOption<R extends boolean, T, D extends TObjectResult<T> | undefined> extends IBaseValidateOption<D, R, {}> {
 			/** 属性列表 */
-			props: {
-				[P in keyof T]: VReturn<T[P]>
-			}
+			props: T
 		}
 
+		/** 数组结果 */
+		export type TArrayResult<T> = T extends VReturn<infer R> ? R : never
+
 		/** 数组校验选项 */
-		export interface IArrayOption<R, T extends any, D extends T | undefined> extends IBaseValidateOption<D, R, {
+		export interface IArrayOption<R, T extends VReturn<any>, D> extends IBaseValidateOption<D, R, {
 			/** 最小长度 */
 			min: number
 			/** 最大长度 */
 			max: number
 		}> {
 			/** 元素定义 */
-			items: VReturn<T>
+			items: T
 		}
 
 		/** 元组处理 */
@@ -131,32 +139,32 @@ declare global {
 			 * 字符串校验
 			 * @param option 校验选项
 			 */
-			string<R extends TReq, S extends string, D extends S | undefined>(option: IStringOption<R, S, D>): VReturn<TResult<R, D, S>>
+			string<R extends TReq, S extends string, D extends S | undefined=undefined>(option: IStringOption<R, S, D>): VReturn<TResult<R, D, S>>
 			/**
 			 * 数字校验
 			 * @param option 校验选项
 			 */
-			number<R extends TReq, N extends number, D extends N | undefined>(option: INumberOption<R, N, D>): VReturn<TResult<R, D, N>>
+			number<R extends TReq, N extends number, D extends N | undefined=undefined>(option: INumberOption<R, N, D>): VReturn<TResult<R, D, N>>
 			/**
 			 * 布尔校验
 			 * @param option 校验选项
 			 */
-			boolean<R extends TReq, D extends boolean | undefined>(option: IBooleanOption<R, D>): VReturn<TResult<R, D, boolean>>
+			boolean<R extends TReq, D extends boolean | undefined = undefined>(option: IBooleanOption<R, D>): VReturn<TResult<R, D, boolean>>
 			/**
 			 * 对象校验
 			 * @param option 校验选项
 			 */
-			object<R extends TReq, T extends {}, D extends T | undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, T>>
+			object<R extends TReq, T, D extends TObjectResult<T> | undefined = undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, TObjectResult<T>>>
 			/**
 			 * 数组校验
 			 * @param option 校验选项
 			 */
-			array<R extends TReq, T extends any, D extends T | undefined>(option: IArrayOption<R, T, D>): VReturn<TResult<R, D, Array<T>>>
+			array<R extends TReq, T extends VReturn<any>, D extends Array<TArrayResult<T>> | undefined = undefined>(option: IArrayOption<R, T, D>): VReturn<TResult<R, D, Array<TArrayResult<T>>>>
 			/**
 			 * 元组校验
 			 * @param option 元组选项
 			 */
-			tuple<R extends TReq, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined>(option: ITupleOption<R, T, D>): VReturn<TResult<R, D, TupleR<[...T]>>>
+			tuple<R extends TReq, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined = undefined>(option: ITupleOption<R, T, D>): VReturn<TResult<R, D, TupleR<[...T]>>>
 			/**
 			 * 或校验
 			 * 
@@ -164,7 +172,7 @@ declare global {
 			 * * 使用此校验，items的非空选项无效
 			 * @param option 校验选项
 			 */
-			or<R extends TReq, T extends VReturn<any>[], D extends TOrR<T> | undefined>(option: IOrOption<R, T, D>): VReturn<TResult<R, D, TOrR<T>>>
+			or<R extends TReq, T extends VReturn<any>[], D extends TOrR<T> | undefined = undefined>(option: IOrOption<R, T, D>): VReturn<TResult<R, D, TOrR<T>>>
 			/** 保持原有值不变 */
 			any(): VReturn<TResult<true, any, any>>
 		}
