@@ -49,7 +49,7 @@ export function createUtil(jsonv2: jsonv2.IValidatorDict) {
 		 * @param name 校验器名称
 		 * @param validator 校验器
 		 */
-		regist<K extends keyof jsonv2.IValidatorDict>(name: K, validator: jsonv2.IValidatorDict[K]) {
+		regist<K extends jsonv2.TValidatorName>(name: K, validator: jsonv2.IValidatorDict[K]) {
 			jsonv2[name] = validator
 		}
 	}

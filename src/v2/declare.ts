@@ -52,7 +52,7 @@ declare global {
 		}
 
 		/** 数字校验选项 */
-		interface INumberOption<R extends TReq, N extends number, D extends N | undefined> extends IBaseValidateOption<D, R, {
+		export interface INumberOption<R extends TReq, N extends number, D extends N | undefined> extends IBaseValidateOption<D, R, {
 			/** 允许的取值 */
 			values: Array<N>
 			/** 最小值 */
@@ -69,10 +69,10 @@ declare global {
 		}
 
 		/** 布尔校验选项 */
-		interface IBooleanOption<R extends TReq, D extends boolean | undefined> extends IBaseValidateOption<D, R, {}> { }
+		export interface IBooleanOption<R extends TReq, D extends boolean | undefined> extends IBaseValidateOption<D, R, {}> { }
 
 		/** 对象校验选项 */
-		interface IObjectOption<R extends boolean, T extends {}, D extends T | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface IObjectOption<R extends boolean, T extends {}, D extends T | undefined> extends IBaseValidateOption<D, R, {}> {
 			/** 属性列表 */
 			props: {
 				[P in keyof T]: VReturn<T[P]>
@@ -80,7 +80,7 @@ declare global {
 		}
 
 		/** 数组校验选项 */
-		interface IArrayOption<R, T extends any, D extends T | undefined> extends IBaseValidateOption<D, R, {
+		export interface IArrayOption<R, T extends any, D extends T | undefined> extends IBaseValidateOption<D, R, {
 			/** 最小长度 */
 			min: number
 			/** 最大长度 */
@@ -91,7 +91,7 @@ declare global {
 		}
 
 		/** 元组处理 */
-		type TupleR<T> = T extends [VReturn<infer T1>] ? [T1] :
+		export type TupleR<T> = T extends [VReturn<infer T1>] ? [T1] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>] ? [T1, T2] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>, VReturn<infer T3>] ? [T1, T2, T3] :
 			T extends [VReturn<infer T1>, VReturn<infer T2>, VReturn<infer T3>, VReturn<infer T4>] ? [T1, T2, T3, T4] :
@@ -109,15 +109,15 @@ declare global {
 			Array<any>
 
 		/** 元组校验选项 */
-		interface ITupleOption<R, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface ITupleOption<R, T extends VReturn<any>[], D extends TupleR<[...T]> | undefined> extends IBaseValidateOption<D, R, {}> {
 			/** 元素定义 */
 			items: [...T]
 		}
 
-		type TOrR<T> = Exclude<T extends Array<VReturn<infer R>> ? R : never, undefined | null>
+		export type TOrR<T> = Exclude<T extends Array<VReturn<infer R>> ? R : never, undefined | null>
 
 		/** 或校验选项 */
-		interface IOrOption<R extends boolean, T extends VReturn<any>[], D extends TOrR<T> | undefined> extends IBaseValidateOption<D, R, {}> {
+		export interface IOrOption<R extends boolean, T extends VReturn<any>[], D extends TOrR<T> | undefined> extends IBaseValidateOption<D, R, {}> {
 			/** 元素定义 */
 			items: T
 		}
@@ -167,5 +167,8 @@ declare global {
 			/** 保持原有值不变 */
 			any(): VReturn<TResult<true, any, any>>
 		}
+
+		/** 校验器名称 */
+		export type TValidatorName = keyof IValidatorDict
 	}
 }
