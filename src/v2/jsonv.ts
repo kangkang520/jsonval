@@ -148,6 +148,8 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				//正常
 				return null!
 			}).filter(s => !!s)
+			//如果为空，直接结束
+			if (isEmpty && !errors.length) return { type: 'success', errors: [], result: val }
 			//数据校验
 			const result: Array<any> = []
 			val.forEach((val, N) => {
@@ -180,6 +182,8 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				//正常
 				return null!
 			}).filter(s => !!s)
+			//空直接结束
+			if (isEmpty && !errors.length) return { type: 'success', errors: [], result: val }
 			//数据校验
 			const result: Array<any> = []
 			option.items.forEach((item, N) => {
