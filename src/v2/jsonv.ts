@@ -117,9 +117,14 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				//正常
 				return null!
 			}).filter(s => !!s)
+			//空返回
+			if (isEmpty) {
+				if (errors.length) return { type: 'error', errors, result: undefined }
+				else return { type: 'success', errors: [], result: val }
+			}
 			//数据校验
-			const result: any = isEmpty ? val : {}
-			if (!isEmpty) Object.keys(option.props).forEach(key => {
+			const result: any = {}
+			Object.keys(option.props).forEach(key => {
 				const v = val[key]
 				const res = option.props[key as keyof typeof option.props](v, opt, [...treePath, key as string])
 				if (res.type == 'error') errors.push(...res.errors)
@@ -149,7 +154,10 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				return null!
 			}).filter(s => !!s)
 			//如果为空，直接结束
-			if (isEmpty && !errors.length) return { type: 'success', errors: [], result: val }
+			if (isEmpty) {
+				if (errors.length) return { type: 'error', errors, result: undefined }
+				else return { type: 'success', errors: [], result: val }
+			}
 			//数据校验
 			const result: Array<any> = []
 			val.forEach((val, N) => {
@@ -183,7 +191,10 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				return null!
 			}).filter(s => !!s)
 			//空直接结束
-			if (isEmpty && !errors.length) return { type: 'success', errors: [], result: val }
+			if (isEmpty) {
+				if (errors.length) return { type: 'error', errors, result: undefined }
+				else return { type: 'success', errors: [], result: val }
+			}
 			//数据校验
 			const result: Array<any> = []
 			option.items.forEach((item, N) => {
@@ -213,7 +224,10 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				return null!
 			}).filter(s => !!s)
 			//检查一下，如果是空，而且没有错误则不进行后续校验
-			if (isEmpty && !errors.length) return { type: 'success', errors: [], result: val }
+			if (isEmpty) {
+				if (errors.length) return { type: 'error', errors, result: val }
+				else return { type: 'success', errors: [], result: val }
+			}
 			//继续校验
 			for (let i = 0; i < option.items.length; i++) {
 				const res = option.items[i](val, opt, treePath)
