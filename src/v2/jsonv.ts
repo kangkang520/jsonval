@@ -246,6 +246,15 @@ export const jsonv2: jsonv2.IValidatorDict = {
 }
 
 
+const xx = jsonv2.or({
+	typeerr: '服务器进程数无效,应该是: "cpus" | [1,128]',
+	items: [
+		jsonv2.string({ rules: [{ values: ['cpus'] }] }),
+		jsonv2.number({ type: 'int', rules: [{ min: 1, max: 128 }] })
+	],
+	default: 'cpus',
+})(undefined, {})
+
 // jsonv2.string({
 // 	rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
 // 	default: 'dev'
