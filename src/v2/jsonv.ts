@@ -166,8 +166,10 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			if (option.pretreat) val = option.pretreat(val)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && !(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
-			if (val.length != option.items.length) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
+			if (!isEmpty) {
+				if (!(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
+				if (val.length != option.items.length) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
+			}
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
