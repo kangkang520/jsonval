@@ -52,25 +52,25 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	string(option) {
 		return (val, opt, treePath = []) => {
 			//基本的处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = this.$util.empty(val, option.emptyVals)
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && (typeof val != 'string')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a string')], result: '' as any }
+			if (!isEmpty && (typeof val != 'string')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a string', val, opt)], result: '' as any }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				//正常处理
 				if (!isEmpty) {
 					//固定值处理
-					if (rule.values && !rule.values.some((v: any) => v === val)) return this.$util.mkerr(rule.message, treePath, `got a error value`)
+					if (rule.values && !rule.values.some((v: any) => v === val)) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
 					//最小最大值
-					if (rule.min && val.length < rule.min) return this.$util.mkerr(rule.message, treePath, `got a error value`)
-					if (rule.max && val.length > rule.max) return this.$util.mkerr(rule.message, treePath, `got a error value`)
+					if (rule.min && val.length < rule.min) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
+					if (rule.max && val.length > rule.max) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
 					//正则表达式
 					if (rule.pattern) {
 						var patterns: Array<RegExp> = (rule.pattern instanceof Array) ? rule.pattern : [rule.pattern]
-						if (!patterns.some(p => p.test(val))) return this.$util.mkerr(rule.message, treePath, `got a error value`)
+						if (!patterns.some(p => p.test(val))) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
 					}
 					//类型校验
 					if (rule.type && REGEXPS[rule.type]) {
@@ -80,7 +80,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 							((reg instanceof Array) && !reg.some(reg => reg.test(val)))
 							//不通过
 							|| (reg instanceof RegExp && !reg.test(val))
-						) return this.$util.mkerr(rule.message, treePath, msg)
+						) return this.$util.mkerr(rule.message, treePath, msg, val, opt)
 					}
 				}
 				//其他正常
@@ -96,23 +96,23 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	number(option) {
 		return (val, opt, treePath = []) => {
 			//基本处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = this.$util.empty(val, option.emptyVals)
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && (typeof val != 'number' || isNaN(val))) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a number')], result: 0 as any }
+			if (!isEmpty && (typeof val != 'number' || isNaN(val))) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a number', val, opt)], result: 0 as any }
 			//类型转换
 			if (option.type == 'int') val = parseInt(val)
 			else if (option.decimal) val = parseFloat(val.toFixed(option.decimal))
 			//规则
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
 					//固定值处理
-					if (rule.values && !rule.values.some((v: any) => v === val)) return this.$util.mkerr(rule.message, treePath, `got a error value`)
+					if (rule.values && !rule.values.some((v: any) => v === val)) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
 					//最小最大值
-					if (rule.min !== undefined && val < rule.min) return this.$util.mkerr(rule.message, treePath, `got a error value`)
-					if (rule.max !== undefined && val > rule.max) return this.$util.mkerr(rule.message, treePath, `got a error value`)
+					if (rule.min !== undefined && val < rule.min) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
+					if (rule.max !== undefined && val > rule.max) return this.$util.mkerr(rule.message, treePath, `got a error value`, val, opt)
 				}
 				//正常
 				return null!
@@ -126,14 +126,14 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	boolean(option) {
 		return (val, opt, treePath = []) => {
 			//值处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && (typeof val !== 'boolean')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a boolean value')], result: undefined! }
+			if (!isEmpty && (typeof val !== 'boolean')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a boolean value', val, opt)], result: undefined! }
 			//规则
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
 					//未来的其他可能校验
 				}
@@ -149,14 +149,14 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	object(option) {
 		return (val, opt, treePath = []) => {
 			//基本处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && (typeof val != 'object')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a object')], result: {} }
+			if (!isEmpty && (typeof val != 'object')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a object', val, opt)], result: {} }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
 					//未来的其他可能校验
 				}
@@ -184,17 +184,17 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	array(option) {
 		return (val: Array<any>, opt, treePath = []) => {
 			//基本处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && !(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'not a array')] }
+			if (!isEmpty && !(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'not a array', val, opt)] }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
-					if (rule.min !== undefined && val.length < rule.min) return this.$util.mkerr(rule.message, treePath, 'got a error value')
-					if (rule.max !== undefined && val.length > rule.max) return this.$util.mkerr(rule.message, treePath, 'got a error value')
+					if (rule.min !== undefined && val.length < rule.min) return this.$util.mkerr(rule.message, treePath, 'got a error value', val, opt)
+					if (rule.max !== undefined && val.length > rule.max) return this.$util.mkerr(rule.message, treePath, 'got a error value', val, opt)
 				}
 				//正常
 				return null!
@@ -219,17 +219,17 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	tuple(option) {
 		return (val, opt, treePath = []) => {
 			//基本处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty) {
-				if (!(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
-				if (val.length != option.items.length) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple')] }
+				if (!(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple', val, opt)] }
+				if (val.length != option.items.length) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple', val, opt)] }
 			}
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
 					//未来的其他可能校验
 				}
@@ -256,13 +256,13 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	or(option) {
 		return (val, opt, treePath = []) => {
 			//基础处理
-			if (option.pretreat) val = option.pretreat(val)
+			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
 			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
-				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value')
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
 				if (!isEmpty) {
 					//未来的其他可能校验
 				}
@@ -280,7 +280,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 				if (res.type == 'success') return { type: 'success', errors: [], result: res.result }
 			}
 			//都没有校验成功，失败了
-			return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'nothing matched')], result: undefined! }
+			return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'nothing matched', val, opt)], result: undefined! }
 		}
 	},
 	//任意值

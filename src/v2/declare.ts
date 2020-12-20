@@ -8,7 +8,7 @@ declare global {
 		export type TReq = true | false
 
 		/** 错误消息 */
-		export type TErrorMessage = string | (() => string) | [string, number] | (() => [string, number])
+		export type TErrorMessage = string | ((val: any, option: any) => string) | [string, number] | ((val: any, option: any) => [string, number])
 
 		/** 结果定义 */
 		// export type TResult<R, D, T> = R extends true ? T : (undefined extends D ? (T | undefined) : (D extends never ? (T | undefined) : T))
@@ -27,7 +27,7 @@ declare global {
 				message?: TErrorMessage
 			} & Partial<Rule>>
 			/** 预处理 */
-			pretreat?: (val: any) => any
+			pretreat?: (val: any, option: any) => any
 			/** 校验是类型错误时使用此错误信息 */
 			typeerr?: TErrorMessage
 			/** 默认值，可以使用函数自定义默认值 */

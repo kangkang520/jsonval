@@ -27,7 +27,7 @@ export default function (val: any, defaultv: any) {
  * @param path 错误路径
  * @param defaultErr 默认错误
  */
-export function mkerr(message: jsonv2.TErrorMessage | undefined, path: Array<string>, defaultErr: string) {
+export function mkerr(message: jsonv2.TErrorMessage | undefined, path: Array<string>, defaultErr: string, val: any, option: any) {
 	if (!message) return new ValidateError(defaultErr, path)
 	//基本的校验函数
 	const baseRet = (message: string | [string, number]) => {
@@ -36,7 +36,7 @@ export function mkerr(message: jsonv2.TErrorMessage | undefined, path: Array<str
 		//[string,number]
 		else return new ValidateError(message[0], path, message[1])
 	}
-	if (typeof message == 'function') return baseRet(message())
+	if (typeof message == 'function') return baseRet(message(val, option))
 	else return baseRet(message)
 }
 /**
