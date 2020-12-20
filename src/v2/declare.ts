@@ -7,15 +7,21 @@ declare global {
 		/** 必选、可选定义 */
 		export type TReq = true | false
 
+		/** 校验器选项 */
+		export interface IValidatorOption {
+			[P: string]: any
+			[P: number]: any
+		}
+
 		/** 错误消息 */
-		export type TErrorMessage = string | ((val: any, option: any) => string) | [string, number] | ((val: any, option: any) => [string, number])
+		export type TErrorMessage = string | ((val: any, option: IValidatorOption) => string) | [string, number] | ((val: any, option: IValidatorOption) => [string, number])
 
 		/** 结果定义 */
 		// export type TResult<R, D, T> = R extends true ? T : (undefined extends D ? (T | undefined) : (D extends never ? (T | undefined) : T))
 		export type TResult<R, D, T> = Exclude<R, true> extends never ? T : (Exclude<D, undefined> extends never ? (T | undefined) : T)
 
 		/** 校验器返回定义 */
-		export type VReturn<T> = (val: any, option: any, path?: Array<string>) => { type: 'success' | 'error', errors: Array<ValidateError>, result: T }
+		export type VReturn<T> = (val: any, option: IValidatorOption, path?: Array<string>) => { type: 'success' | 'error', errors: Array<ValidateError>, result: T }
 
 		/** 基本校验选项 */
 		export interface IBaseValidateOption<D, R, Rule> {
@@ -27,7 +33,7 @@ declare global {
 				message?: TErrorMessage
 			} & Partial<Rule>>
 			/** 预处理 */
-			pretreat?: (val: any, option: any) => any
+			pretreat?: (val: any, option: IValidatorOption) => any
 			/** 校验是类型错误时使用此错误信息 */
 			typeerr?: TErrorMessage
 			/** 默认值，可以使用函数自定义默认值 */
