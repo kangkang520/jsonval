@@ -54,7 +54,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基本的处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = this.$util.empty(val, option.emptyVals)
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty && (typeof val != 'string')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a string', val, opt)], result: '' as any }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
@@ -98,11 +98,13 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基本处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = this.$util.empty(val, option.emptyVals)
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
-			if (!isEmpty && (typeof val != 'number' || isNaN(val))) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a number', val, opt)], result: 0 as any }
-			//类型转换
-			if (option.type == 'int') val = parseInt(val)
-			else if (option.decimal) val = parseFloat(val.toFixed(option.decimal))
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			//类型校验及转换
+			if (!isEmpty) {
+				if (typeof val != 'number' || isNaN(val)) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a number', val, opt)], result: 0 as any }
+				if (option.type == 'int') val = parseInt(val as any)
+				else if (option.decimal) val = parseFloat(val.toFixed(option.decimal))
+			}
 			//规则
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
@@ -128,7 +130,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//值处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty && (typeof val !== 'boolean')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a boolean value', val, opt)], result: undefined! }
 			//规则
 			const errors = (option.rules || []).map(rule => {
@@ -151,7 +153,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基本处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty && (typeof val != 'object')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a object', val, opt)], result: {} }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
@@ -186,7 +188,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基本处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty && !(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'not a array', val, opt)] }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
@@ -221,7 +223,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基本处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			if (!isEmpty) {
 				if (!(val instanceof Array)) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple', val, opt)] }
 				if (val.length != option.items.length) return { type: 'error', result: [] as any, errors: [this.$util.mkerr(option.typeerr, treePath, 'got a error tuple', val, opt)] }
@@ -258,7 +260,7 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			//基础处理
 			if (option.pretreat) val = option.pretreat(val, opt)
 			const isEmpty = val === undefined || val === null
-			if (isEmpty && option.default) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
 			//规则校验
 			const errors = (option.rules || []).map(rule => {
 				//非空处理
