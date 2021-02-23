@@ -1,11 +1,16 @@
 import { ValidateError } from "./error"
 import * as $util from "./util"
 
+type ValueOf<T> = T[keyof T]
+
 declare global {
 	/** 校验器命名空间，用于定义 */
 	export namespace jsonv2 {
 		/** 必选、可选定义 */
 		export type TReq = true | false
+
+		/** 取数组类型 */
+		export type TArrayType<T> = T extends Array<infer R> ? R : never
 
 		/** 校验器选项 */
 		export interface IValidatorOption {
@@ -22,6 +27,9 @@ declare global {
 
 		/** 校验器返回定义 */
 		export type VReturn<T> = (val: any, option: IValidatorOption, path?: Array<string>) => { type: 'success' | 'error', errors: Array<ValidateError>, result: T }
+
+		/** 对象结果 */
+		export type TReturnType<T> = T extends VReturn<infer R> ? R : never
 
 		/** 基本校验选项 */
 		export interface IBaseValidateOption<D, R, Rule> {
@@ -80,8 +88,10 @@ declare global {
 		/** 布尔校验选项 */
 		export interface IBooleanOption<R extends TReq, D extends boolean | undefined> extends IBaseValidateOption<D, R, {}> { }
 
-		/** 对象结果 */
-		export type TObjectResult<T> = T extends VReturn<infer R> ? R : never
+		/** 处理object中的可选型，为undefined的键增加“?” */
+		export type EscapeObject<O> = Omit<
+			{ [P in ValueOf<{ [P in keyof O]: undefined extends O[P] ? P : never }>]+?: O[P] }
+			& { [P in ValueOf<{ [P in keyof O]: undefined extends O[P] ? never : P }>]: O[P] }, never>
 
 		/** 对象校验选项 */
 		export interface IObjectOption<R extends boolean, T, D> extends IBaseValidateOption<D, R, {}> {
@@ -89,8 +99,25 @@ declare global {
 			props: T
 		}
 
-		/** 数组结果 */
-		export type TArrayResult<T> = T extends VReturn<infer R> ? R : never
+		/** 键值对的键类型 */
+		export type TKeyValueType<EV extends string | number> = 'string' | 'number' | Array<EV>
+
+		/** 类型定义 */
+		export type TKeyValueResult<EV extends string | number, KR extends boolean, T extends TKeyValueType<EV>, V> = T extends 'string' ? { [K: string]: V } : (
+			T extends 'number' ? { [K: number]: V } : (
+				Exclude<KR, true> extends never ? { [K in TArrayType<T>]: V } : { [K in TArrayType<T>]?: V }
+			))
+
+		/** 键值对 */
+		export interface IKeyValueOption<R extends boolean, EV extends string | number, K extends TKeyValueType<EV>, KR extends boolean, T, D> extends IBaseValidateOption<D, R, {
+			/** 指定允许的键，默认string */
+			keys: K
+			/** 当keys为枚举值时，要求每个值都必须定义 */
+			everyone: KR
+		}> {
+			/** 值校验 */
+			values: T
+		}
 
 		/** 数组校验选项 */
 		export interface IArrayOption<R, T extends VReturn<any>, D> extends IBaseValidateOption<D, R, {
@@ -159,12 +186,17 @@ declare global {
 			 * 对象校验
 			 * @param option 校验选项
 			 */
-			object<R extends TReq, T, D extends { [P in keyof T]: TObjectResult<T[P]> } | undefined = undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, { [P in keyof T]: TObjectResult<T[P]> }>>
+			object<R extends TReq, T, D extends EscapeObject<{ [P in keyof T]: TReturnType<T[P]> }> | undefined = undefined>(option: IObjectOption<R, T, D>): VReturn<TResult<R, D, EscapeObject<{ [P in keyof T]: TReturnType<T[P]> }>>>
+			/**
+			 * 键值对校验
+			 * @param option 校验选项
+			 */
+			keyvalue<R extends TReq, EV extends string | number, K extends TKeyValueType<EV>, KR extends boolean, T extends VReturn<any>, D extends TKeyValueResult<EV, KR, K, TReturnType<T>> | undefined = undefined>(option: IKeyValueOption<R, EV, K, KR, T, D>): VReturn<TResult<R, D, TKeyValueResult<EV, KR, K, TReturnType<T>>>>
 			/**
 			 * 数组校验
 			 * @param option 校验选项
 			 */
-			array<R extends TReq, T extends VReturn<any>, D extends Array<TArrayResult<T>> | undefined = undefined>(option: IArrayOption<R, T, D>): VReturn<TResult<R, D, Array<TArrayResult<T>>>>
+			array<R extends TReq, T extends VReturn<any>, D extends Array<TReturnType<T>> | undefined = undefined>(option: IArrayOption<R, T, D>): VReturn<TResult<R, D, Array<TReturnType<T>>>>
 			/**
 			 * 元组校验
 			 * @param option 元组选项

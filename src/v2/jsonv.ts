@@ -182,6 +182,57 @@ export const jsonv2: jsonv2.IValidatorDict = {
 			return { type: (errors.length ? 'error' : 'success'), errors, result }
 		}
 	},
+	//键值对
+	keyvalue(option) {
+		return (val, opt, treePath = []) => {
+			//基本处理
+			if (option.pretreat) val = option.pretreat(val, opt)
+			const isEmpty = val === undefined || val === null
+			if (isEmpty && !this.$util.empty(option.default)) return { type: 'success', errors: [], result: this.$util.default(val, option.default) }
+			if (!isEmpty && (typeof val != 'object')) return { type: 'error', errors: [this.$util.mkerr(option.typeerr, treePath, 'not a key-value object', val, opt)], result: {} }
+			//规则校验
+			const errors = (option.rules || []).map(rule => {
+				//非空处理
+				if (rule.required && isEmpty) return this.$util.mkerr(rule.message, treePath, 'got a emtpy value', val, opt)
+				if (!isEmpty) {
+					//keys校验('string'不用校验)
+					if (rule.keys == 'number') {
+						if (Object.keys(val).some(key => isNaN(key as any * 1))) return this.$util.mkerr(rule.message, treePath, 'got a non-number key', val, opt)
+					}
+					// else if(rule.keys=='string')
+					//枚举值
+					else if (rule.keys instanceof Array) {
+						const keys = Object.keys(val)
+						//全匹配
+						if (rule.everyone) {
+							if (rule.keys.length != keys.length) return this.$util.mkerr(rule.message, treePath, 'keys not match', val, opt)
+							if (rule.keys.some(key => !keys.includes(key))) return this.$util.mkerr(rule.message, treePath, 'keys not match', val, opt)
+						}
+						//部分匹配
+						else {
+							if (keys.some(k => !rule.keys?.includes(k as any))) return this.$util.mkerr(rule.message, treePath, 'keys not match', val, opt)
+						}
+					}
+				}
+				//正常
+				return null!
+			}).filter(s => !!s)
+			//空返回
+			if (isEmpty) {
+				if (errors.length) return { type: 'error', errors, result: undefined }
+				else return { type: 'success', errors: [], result: val }
+			}
+			//数据校验
+			const result: any = {}
+			Object.keys(val).forEach(key => {
+				const res = option.values(val[key], opt, [...treePath, key as string])
+				if (res.type == 'error') errors.push(...res.errors)
+				result[key] = res.result
+			})
+			//返回结果
+			return { type: (errors.length ? 'error' : 'success'), errors, result }
+		}
+	},
 	//数组
 	array(option) {
 		return (val: Array<any>, opt, treePath = []) => {
@@ -293,6 +344,19 @@ export const jsonv2: jsonv2.IValidatorDict = {
 	},
 }
 
+// const ret = jsonv2.keyvalue({
+// 	values: jsonv2.string({
+// 		rules: [{ required: true }]
+// 	}),
+// 	rules: [
+// 		{ required: true },
+// 		// { keys: 'string' },
+// 		{ keys: ['a', 'b', 'c'], everyone: true },
+// 	]
+// })(null!, null!)
+
+// ret.result?.a?.length
+
 
 // const xx = jsonv2.or({
 // 	typeerr: '服务器进程数无效,应该是: "cpus" | [1,128]',
@@ -332,9 +396,10 @@ export const jsonv2: jsonv2.IValidatorDict = {
 // 	props: {
 // 		items: jsonv2.string({
 // 			rules: [{ values: ['dev', 'pro'], message: '代码模式错误，应该是dev或pro' }],
-// 			default: 'dev'
+// 			// default: 'dev'
 // 		}),
 // 	},
-// 	default: { items: 'dev' }
+// 	// default: { items: 'dev' }
+// 	// default:{items:'dev'}
 // })(undefined, {})
 // validators2.result.items
